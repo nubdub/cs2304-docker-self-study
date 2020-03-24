@@ -4,6 +4,7 @@ from flask import request
 import json
 
 app = Flask(__name__)
+prefix = '/api'
 
 class Blab:
     def __init__(self, id, postTime, author, message):
@@ -22,12 +23,12 @@ class Blab:
 
 Blabs = [Blab(1, 0, {"email": "johndoe@yahoo.com", "name": "John Doe"}, "Hello World")]
 
-@app.route('/')
+@app.route(prefix)
 def home():
     return 'Hello World'
 
 
-@app.route('/greetings')
+@app.route(prefix + '/greetings')
 def greetings():
     greetings_arr = [
         {'index': 0, 'greeting': 'Hello'},
@@ -38,7 +39,7 @@ def greetings():
     return Response(json.dumps(greetings_arr), mimetype='application/json')
 
 
-@app.route('/blabs', methods=['GET', 'POST'])
+@app.route(prefix + '/blabs', methods=['GET', 'POST'])
 def blabs():
     if request.method == 'GET':
         result = []
@@ -54,7 +55,7 @@ def blabs():
         return Response(json.dumps(blab.toDict()), mimetype='application/json')
 
 
-@app.route('/blabs/<id>', methods=['DELETE'])
+@app.route(prefix + '/blabs/<id>', methods=['DELETE'])
 def delete_blab(id):
     if request.method == 'DELETE':
         index = find_blab_by_id(id)
@@ -62,6 +63,8 @@ def delete_blab(id):
             result = Blab(Blabs[index].id, Blabs[index].postTime, Blabs[index].author, Blabs[index].message).toDict()
             del Blabs[index]
             return Response(json.dumps(result), mimetype='application/json')
+        else:
+            flask.abort(404)
 
 
 def find_blab_by_id(id):
